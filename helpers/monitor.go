@@ -76,7 +76,7 @@ func geolocate(address *net.IPAddr) (*geoip2.City, error) {
 	if _, err := os.Stat(geomindDbPath); errors.Is(err, os.ErrNotExist) {
 		return nil, fmt.Errorf("skipping location lookup as no GEOMIND_DATABASE supplied")
 	}
-	data, err := geoip2.Open("GeoLite2-City.mmdb")
+	data, err := geoip2.Open(geomindDbPath)
 	if err != nil {
 		return nil, err
 	}
