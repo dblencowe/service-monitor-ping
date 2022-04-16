@@ -89,7 +89,8 @@ func pingInterval() *time.Duration {
 }
 
 type HttpOutput struct {
-	Results *[]helpers.Result
+	Results     *[]helpers.Result
+	RequestTime time.Duration
 }
 
 func setupHttpServer(httpServerPort string, queries *[]helpers.Query) {
@@ -98,10 +99,12 @@ func setupHttpServer(httpServerPort string, queries *[]helpers.Query) {
 		return
 	}
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		now := time.Now()
 		results := make(chan *[]helpers.Result, len(*queries))
 		go queryWrapper(results, queries)
 		response := HttpOutput{
-			Results: <-results,
+			Results:     <-results,
+			RequestTime: time.Duration(time.Since(now).Seconds()),
 		}
 		json.NewEncoder(w).Encode(response)
 	})
@@ -112,11 +115,13 @@ func setupHttpServer(httpServerPort string, queries *[]helpers.Query) {
 func queryWrapper(channel chan *[]helpers.Result, queries *[]helpers.Query) {
 	var results []helpers.Result
 	for _, query := range *queries {
-		result, err := helpers.QueryAddress(&query)
-		if err != nil {
-			panic(err)
+		resultChan := make(chan helpers.MonitorResult)
+		go helpers.QueryAddress(resultChan, &query)
+		result := <-resultChan
+		if result.Error != nil {
+			panic(result.Error)
 		}
-		results = append(results, *result)
+		results = append(results, result.Result)
 	}
 
 	channel <- &results

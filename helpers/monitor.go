@@ -25,10 +25,18 @@ type Query struct {
 	Results  []Result
 }
 
-func QueryAddress(query *Query) (*Result, error) {
+type MonitorResult struct {
+	Result Result
+	Error  error
+}
+
+func QueryAddress(resultChan chan MonitorResult, query *Query) {
 	dest, duration, err := Ping(query.Address)
 	if err != nil {
-		panic(err)
+		resultChan <- MonitorResult{
+			Error: err,
+		}
+		return
 	}
 	result := Result{
 		PingedAt: time.Now(),
@@ -40,24 +48,32 @@ func QueryAddress(query *Query) (*Result, error) {
 		result.City = location.City.Names["en"]
 		localTime, err := getLocalTime(location.Location.TimeZone)
 		if err != nil {
-			return nil, err
+			resultChan <- MonitorResult{
+				Error: err,
+			}
+			return
 		}
 		result.LocalTime = localTime
 	}
 
-	return &result, nil
+	resultChan <- MonitorResult{
+		Result: result,
+		Error:  nil,
+	}
 }
 
 func MonitorAddress(query *Query) error {
 	log.Printf("starting monitor of %s with interval %v\n", query.Address, query.Interval)
 	for {
-		result, err := QueryAddress(query)
-		if err != nil {
-			return err
+		resultChan := make(chan MonitorResult)
+		QueryAddress(resultChan, query)
+		result := <-resultChan
+		if result.Error != nil {
+			panic(result.Error)
 		}
-		query.Results = append(query.Results, *result)
-		displayTime := fmt.Sprintf("%02d:%02d", result.LocalTime.Hour(), result.LocalTime.Minute())
-		log.Printf("Ping %s (%s @ %s): %s, average: %v\n", query.Address, result.City, displayTime, result.Duration, averageResponseTime(query.Results))
+		query.Results = append(query.Results, *&result.Result)
+		displayTime := fmt.Sprintf("%02d:%02d", result.Result.LocalTime.Hour(), result.Result.LocalTime.Minute())
+		log.Printf("Ping %s (%s @ %s): %s, average: %v\n", query.Address, result.Result.City, displayTime, result.Result.Duration, averageResponseTime(query.Results))
 		time.Sleep(query.Interval)
 	}
 }
