@@ -1,0 +1,13 @@
+version: "3.9"  # optional since v1.27.0
+services:
+  service:
+    build: .
+    volumes:
+      - .:/code
+    environment:
+      - PING_INTERVAL=30
+      - HTTP_ENABLE=true
+      - GEOMIND_DATABASE=./GeoLite2-City.mmdb
+      - INPUT_FILE=./ips.txt
+    ports:
+      - 8080:8080
