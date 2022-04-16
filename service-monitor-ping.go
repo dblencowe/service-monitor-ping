@@ -31,7 +31,12 @@ func main() {
 
 		wg.Wait()
 	} else {
-		setupHttpServer(queries)
+		httpServerPort := os.Getenv("HTTP_PORT")
+		if len(httpServerPort) == 0 {
+			httpServerPort = "8080"
+		}
+		log.Printf("http server listening on 0.0.0.0:%s", httpServerPort)
+		setupHttpServer(httpServerPort, queries)
 	}
 }
 
@@ -87,14 +92,10 @@ type HttpOutput struct {
 	Results *[]helpers.Result
 }
 
-func setupHttpServer(queries *[]helpers.Query) {
+func setupHttpServer(httpServerPort string, queries *[]helpers.Query) {
 	enableHttpServer := os.Getenv("HTTP_ENABLE")
 	if len(enableHttpServer) == 0 {
 		return
-	}
-	httpServerPort := os.Getenv("HTTP_PORT")
-	if len(httpServerPort) == 0 {
-		httpServerPort = "8080"
 	}
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		results := make(chan *[]helpers.Result, len(*queries))
@@ -106,7 +107,6 @@ func setupHttpServer(queries *[]helpers.Query) {
 	})
 
 	http.ListenAndServe(":"+httpServerPort, nil)
-	log.Printf("http server listening on :%s", httpServerPort)
 }
 
 func queryWrapper(channel chan *[]helpers.Result, queries *[]helpers.Query) {

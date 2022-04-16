@@ -1,9 +1,11 @@
 package helpers
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net"
+	"os"
 	"time"
 
 	"github.com/oschwald/geoip2-golang"
@@ -36,12 +38,12 @@ func QueryAddress(query *Query) (*Result, error) {
 	location, err := geolocate(dest)
 	if err == nil {
 		result.City = location.City.Names["en"]
+		localTime, err := getLocalTime(location.Location.TimeZone)
+		if err != nil {
+			return nil, err
+		}
+		result.LocalTime = localTime
 	}
-	localTime, err := getLocalTime(location.Location.TimeZone)
-	if err != nil {
-		return nil, err
-	}
-	result.LocalTime = localTime
 
 	return &result, nil
 }
@@ -70,6 +72,10 @@ func averageResponseTime(results []Result) float64 {
 }
 
 func geolocate(address *net.IPAddr) (*geoip2.City, error) {
+	geomindDbPath := os.Getenv("GEOMIND_DATABASE")
+	if _, err := os.Stat(geomindDbPath); errors.Is(err, os.ErrNotExist) {
+		return nil, fmt.Errorf("skipping location lookup as no GEOMIND_DATABASE supplied")
+	}
 	data, err := geoip2.Open("GeoLite2-City.mmdb")
 	if err != nil {
 		return nil, err
