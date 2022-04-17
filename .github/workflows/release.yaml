@@ -44,6 +44,7 @@ jobs:
         platforms: linux/amd64,linux/arm64
         tags: |
           ghcr.io/dblencowe/service-monitor-ping:latest
+          ghcr.io/dblencowe/service-monitor-ping:{{version}}
         push: true
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
