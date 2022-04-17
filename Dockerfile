@@ -12,7 +12,7 @@ RUN go build -o ./service-monitor-ping
 
 FROM alpine:3.13
 WORKDIR /app
-
+LABEL org.opencontainers.image.source https://github.com/dblencowe/service-monitor-ping
 ENV CGO_ENABLED=0
 
 RUN apk update && apk add tzdata
