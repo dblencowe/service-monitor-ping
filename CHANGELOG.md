@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/dblencowe/service-monitor-ping/compare/v1.0.1...v1.1.0) (2022-04-17)
+
+
+### Features
+
+* build for multiple architectures ([32f7c00](https://github.com/dblencowe/service-monitor-ping/commit/32f7c002e581921a05ba67092e8305466fb4ef93))
+
 ### 1.0.1 (2022-04-17)
 
 
