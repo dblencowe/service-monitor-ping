@@ -3,11 +3,13 @@ services:
   service:
     build: .
     volumes:
-      - .:/code
+      - .:/app
+      - ./ips.txt:/app/ips.txt
+      - ./GeoLite2-City.mmdb:/app/geolite.mmdb
     environment:
       - PING_INTERVAL=30
       - HTTP_ENABLE=true
-      - GEOMIND_DATABASE=./GeoLite2-City.mmdb
-      - INPUT_FILE=./ips.txt
+      - GEOMIND_DATABASE=/app/geolite.mmdb
+      - INPUT_FILE=/app/ips.txt
     ports:
       - 8080:8080
