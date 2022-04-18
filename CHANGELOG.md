@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.4](https://github.com/dblencowe/service-monitor-ping/compare/v1.0.3...v1.0.4) (2022-04-18)
+
+
+### Bug Fixes
+
+* fix builds by extracing docker labels diferently ([f129d75](https://github.com/dblencowe/service-monitor-ping/commit/f129d756c034d17fc30f06455f2deba752c6e621))
+
 ### [1.0.3](https://github.com/dblencowe/service-monitor-ping/compare/v1.0.2...v1.0.3) (2022-04-17)
 
 
