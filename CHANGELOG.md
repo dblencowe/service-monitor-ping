@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.6](https://github.com/dblencowe/service-monitor-ping/compare/v1.0.5...v1.0.6) (2022-04-18)
+
+
+### Bug Fixes
+
+* no longer tag docker registry image ([1b67de9](https://github.com/dblencowe/service-monitor-ping/commit/1b67de9f6ab914f6dcf5c9ccfef932e6d73c51d8))
+
 ### [1.0.5](https://github.com/dblencowe/service-monitor-ping/compare/v1.0.4...v1.0.5) (2022-04-18)
 
 
