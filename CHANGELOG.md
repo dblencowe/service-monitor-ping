@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/dblencowe/service-monitor-ping/compare/v1.0.6...v1.1.0) (2022-04-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove monitor mode
+
+### Features
+
+* remove monitor mode ([cc4db11](https://github.com/dblencowe/service-monitor-ping/commit/cc4db11ab5c93c85f99f61814f7a9279ad8011d2))
+
 ### [1.0.6](https://github.com/dblencowe/service-monitor-ping/compare/v1.0.5...v1.0.6) (2022-04-18)
 
 
