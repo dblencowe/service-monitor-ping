@@ -23,4 +23,3 @@ INPUT_FILE=./ips.txt ./service-monitor-ping
 |PING_INTERVAL|30|Number of seconds between each ping to a host|
 |INPUT_FILE|""|Input file of IPs to be monitored|
 |GEOMIND_DATABASE|""|GeoMind database to use for location lookups|
-|MONITOR|""||

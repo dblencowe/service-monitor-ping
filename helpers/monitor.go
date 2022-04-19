@@ -3,7 +3,6 @@ package helpers
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net"
 	"os"
 	"time"
@@ -60,31 +59,6 @@ func QueryAddress(resultChan chan MonitorResult, query *Query) {
 		Result: result,
 		Error:  nil,
 	}
-}
-
-func MonitorAddress(query *Query) error {
-	log.Printf("starting monitor of %s with interval %v\n", query.Address, query.Interval)
-	for {
-		resultChan := make(chan MonitorResult)
-		QueryAddress(resultChan, query)
-		result := <-resultChan
-		if result.Error != nil {
-			panic(result.Error)
-		}
-		query.Results = append(query.Results, *&result.Result)
-		displayTime := fmt.Sprintf("%02d:%02d", result.Result.LocalTime.Hour(), result.Result.LocalTime.Minute())
-		log.Printf("Ping %s (%s @ %s): %s, average: %v\n", query.Address, result.Result.City, displayTime, result.Result.Duration, averageResponseTime(query.Results))
-		time.Sleep(query.Interval)
-	}
-}
-
-func averageResponseTime(results []Result) float64 {
-	total := 0 * time.Second
-	for _, result := range results {
-		total += result.Duration
-	}
-
-	return (float64(total) / float64(len(results))) / float64(time.Millisecond)
 }
 
 func geolocate(address *net.IPAddr) (*geoip2.City, error) {

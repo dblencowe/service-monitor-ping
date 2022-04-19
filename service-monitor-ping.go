@@ -8,36 +8,35 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/dblencowe/service-monitor-ping/helpers"
 )
 
 func main() {
-	var wg sync.WaitGroup
 	interval := pingInterval()
 	queries := buildQueries(*interval)
 	if len(*queries) == 0 {
 		panic("no ips provided to be monitored")
 	}
 
-	doMonitoring := os.Getenv("MONITOR")
-	if len(doMonitoring) > 0 {
-		for _, query := range *queries {
-			wg.Add(1)
-			go helpers.MonitorAddress(&query)
-		}
-
-		wg.Wait()
-	} else {
-		httpServerPort := os.Getenv("HTTP_PORT")
-		if len(httpServerPort) == 0 {
-			httpServerPort = "8080"
-		}
-		log.Printf("http server listening on 0.0.0.0:%s", httpServerPort)
-		setupHttpServer(httpServerPort, queries)
+	httpServerPort := os.Getenv("HTTP_PORT")
+	if len(httpServerPort) == 0 {
+		httpServerPort = "8080"
 	}
+	log.Printf("http server listening on 0.0.0.0:%s", httpServerPort)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		now := time.Now()
+		results := make(chan *[]helpers.Result, len(*queries))
+		go queryWrapper(results, queries)
+		response := HttpOutput{
+			Results:     <-results,
+			RequestTime: time.Duration(time.Since(now).Seconds()),
+		}
+		json.NewEncoder(w).Encode(response)
+	})
+
+	http.ListenAndServe(":"+httpServerPort, nil)
 }
 
 func buildQueries(interval time.Duration) *[]helpers.Query {
@@ -91,25 +90,6 @@ func pingInterval() *time.Duration {
 type HttpOutput struct {
 	Results     *[]helpers.Result
 	RequestTime time.Duration
-}
-
-func setupHttpServer(httpServerPort string, queries *[]helpers.Query) {
-	enableHttpServer := os.Getenv("HTTP_ENABLE")
-	if len(enableHttpServer) == 0 {
-		return
-	}
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		now := time.Now()
-		results := make(chan *[]helpers.Result, len(*queries))
-		go queryWrapper(results, queries)
-		response := HttpOutput{
-			Results:     <-results,
-			RequestTime: time.Duration(time.Since(now).Seconds()),
-		}
-		json.NewEncoder(w).Encode(response)
-	})
-
-	http.ListenAndServe(":"+httpServerPort, nil)
 }
 
 func queryWrapper(channel chan *[]helpers.Result, queries *[]helpers.Query) {
